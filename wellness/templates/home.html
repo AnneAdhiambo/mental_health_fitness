@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Mental Health Project{% endblock %}
+
+{% block content %}
+    <h1>Welcome to the Mental Health Fitness App</h1>
+    <p>Your mental health matters. Track your mood and keep a journal to reflect on your feelings.</p>
+    <a href="{% url 'mood_tracker' %}" class="btn btn-primary">Go to Mood Tracker</a>
+    <a href="{% url 'journal' %}" class="btn btn-secondary">Go to Journal</a>
+    <a href="{% url 'activities' %}" class="btn btn-secondary">Go to activities</a>
+{% endblock %}

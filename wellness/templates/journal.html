@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Journal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Write a Journal Entry</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        {{ form.date }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Entry</label>
+                        {{ form.entry }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Entry</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Journal Entries</h4>
+            </div>
+            <div class="card-body">
+                {% if journal_entries %}
+                    <div class="list-group">
+                    {% for entry in journal_entries %}
+                        <div class="list-group-item">
+                            <h6 class="mb-1">Date: {{ entry.date|date:"F j, Y" }}</h6>
+                            <p class="mb-1">{{ entry.entry }}</p>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No journal entries yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
