@@ -31,15 +31,13 @@ def mood_tracker(request):
 
 def journal(request):
     if request.method == 'POST':
-        form = JournalEntryForm(request.POST)
-        if form.is_valid():
-            entry = form.save(commit=False)
-            entry.user = request.user
-            entry.save()
-            return redirect('home')
+        content = request.POST.get('content')
+        if content:
+            JournalEntry.objects.create(content=content)
+        return redirect('/') 
     else:
         form = JournalEntryForm()
-    entries = JournalEntry.objects.filter(user=request.user)
+    entries = JournalEntry.objects.all().order_by('-date')
     return render(request, 'journal.html', {'form': form, 'entries': entries})
 
 def signup(request):

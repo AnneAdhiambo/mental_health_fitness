@@ -1,0 +1,13 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'journal',
+        'USER': 'Anney',
+        'PASSWORD': '',
+        'HOST': 'localhost',  # Or your MySQL server address
+        'PORT': '3306',
+        'OPTIONS': {
+            'sql_mode': 'traditional',
+        },
+    }
+}

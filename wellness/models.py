@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 class Mood(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    mood_type = models.CharField(max_length=50,default="Neutral")
+    mood_type = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

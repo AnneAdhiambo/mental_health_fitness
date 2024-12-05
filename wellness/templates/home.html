@@ -1,11 +1,94 @@
 {% extends 'base.html' %}
 
+{% load static %}
 {% block title %}Home - Mental Health Project{% endblock %}
 
 {% block content %}
-    <h1>Welcome to the Mental Health Fitness App</h1>
+<style>
+    body {
+    background-color: #fefbe9;
+    font-family: Arial, sans-serif;
+    color:#fefbe9;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Viewport height */
+    overflow-y: scroll; /* Allow vertical scrolling */
+    background-image: url("{% static 'img8.jpeg' %}"); /* Path to your static image */
+    background-size: cover; /* Ensures the image covers the entire page */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    height: 100vh; /* Full viewport height */
+    color: white; /* Makes text readable */
+    }
+
+    .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            text-align: center;
+            background: #fefbe9(184, 26, 26, 0.5); /* Optional: Adds a semi-transparent overlay */
+        }
+
+
+
+    p {
+        font-size: 1.5em;
+        text-align: center;
+        margin: 20px 0;
+        color: white;
+    }
+
+    .btn {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 20px;
+        font-size: 1em;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-primary {
+        background-color:#86af4c;
+        color: #fff;
+        border: 1px solid #ccc;
+    }
+    .btn-primary {
+        background-color:#86af4c;
+        color: #fff;
+        border: 1px solid #ccc;
+    }
+
+    .btn-secondary {
+        background-color:#86af4c; ;
+        color: #fff;
+        border:  1px solid #ccc;
+    }
+
+    .btn-secondary:hover {
+        background-color: #1846eb;
+        transform: scale(1.05);
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 100px;
+        text-align: center;
+    }
+</style>
+
+    <h1>
+
+    </h1>
     <p>Your mental health matters. Track your mood and keep a journal to reflect on your feelings.</p>
-    <a href="{% url 'mood_tracker' %}" class="btn btn-primary">Go to Mood Tracker</a>
-    <a href="{% url 'journal' %}" class="btn btn-secondary">Go to Journal</a>
-    <a href="{% url 'activities' %}" class="btn btn-secondary">Go to activities</a>
+    <div style="display: flex; justify-content: center; align-items: center; position: fixed; bottom: 110px; left: 0; right: 0; text-align: center; gap: 10px;">
+        <a href="{% url 'mood_tracker' %}" class="btn btn-primary">Go to Mood Tracker</a>
+        <a href="{% url 'journal' %}" class="btn btn-secondary">Go to Journal</a>
+        <a href="{% url 'activities' %}" class="btn btn-secondary">Go to Activities</a>
+    </div>
+    
+    
+    
 {% endblock %}

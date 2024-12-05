@@ -3,51 +3,139 @@
 {% block title %}Journal{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h4>Write a Journal Entry</h4>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Date</label>
-                        {{ form.date }}
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Entry</label>
-                        {{ form.entry }}
-                    </div>
-                    <button type="submit" class="btn btn-primary">Save Entry</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+<style>
+   body {
+    background-color: #fefbe9;
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Viewport height */
+    overflow-y: scroll; /* Allow vertical scrolling */
+}
+* Modal Styling */
+    .modal-content {
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+    }
+html {
+    height: 100%;
+    overflow-y: scroll; /* Ensure scroll is enabled on all browsers */
+}
 
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h4>Journal Entries</h4>
-            </div>
-            <div class="card-body">
-                {% if journal_entries %}
-                    <div class="list-group">
-                    {% for entry in journal_entries %}
-                        <div class="list-group-item">
-                            <h6 class="mb-1">Date: {{ entry.date|date:"F j, Y" }}</h6>
-                            <p class="mb-1">{{ entry.entry }}</p>
-                        </div>
-                    {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No journal entries yet.</p>
-                {% endif %}
+
+.container {
+    padding-bottom: 50px; 
+}
+
+.greeting h2 {
+    font-size: 24px;
+    color:  #69bc2e;
+}
+
+.greeting p {
+    font-size: 18px;
+    color: #69bc2e;
+}
+
+.card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    transition: transform 0.2s ease-in-out;
+    height: 100%; /* Ensure cards take up their container height */
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 18px;
+    color: #69bc2e;
+}
+
+/* For mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .card-title {
+        font-size: 16px;
+    }
+
+    .card-text {
+        font-size: 12px;
+    }
+}
+
+
+
+</style>
+
+<div class="container mt-5">
+    <div class="greeting mb-4">
+        <h2>Hey Annie!  &#x1F60A;</h2>
+        <p>Nothing is impossible.</p>
+        <p>And Girrrrl keep up that smile.</p>
+
+    </div>
+    <h3 class="mb-4">My Week Journal</h3>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <!-- Journal Card 1 -->
+        {% for entry in entries %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{entry.date}}</h5>
+                    <p class="card-text">{{entry.content}}
+                    </p>
+                </div>
             </div>
         </div>
+        {% endfor %}
+        
+      <!-- Add Journal Button -->
+      <div class="row">
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Add new  + </button>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">New journal</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="recipient-name" class="col-form-label">Date</label>
+            <input type="text" class="form-control" id="recipient-name">
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="col-form-label">content</label>
+            <textarea class="form-control" id="message-text"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save journal</button>
+      </div>
+    </div>
+  </div>
+</div>
     </div>
 </div>
 {% endblock %}

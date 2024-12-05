@@ -3,6 +3,103 @@
 {% block title %}Mood Tracker{% endblock %}
 
 {% block content %}
+<style>
+   body {
+    background-color: #fefbe9;
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    height: 100vh; /* Viewport height */
+    overflow-y: scroll; /* Allow vertical scrolling */
+}
+/* Main container styling */
+.container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background: #ffffff;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+/* Card styling */
+.card {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    border-radius: 12px;
+    background: #f6ffe9;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Heading styling */
+.card h2 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #fefbe9;
+    border-bottom: 2px solid #fefbe9;;
+    padding-bottom: 10px;
+}
+
+/* Input fields styling */
+.card input[type="text"],
+.card textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    background-color: #fff;
+}
+
+/* Button styling */
+.card button {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #1e88e5;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.card button:hover {
+    background-color: #1565c0;
+}
+
+/* Mood history text styling */
+.card p {
+    color: #757575;
+    font-size: 1em;
+    line-height: 1.5;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+}
+</style>
+
 <div class="row">
     <div class="col-md-6">
         <div class="card">
@@ -12,8 +109,11 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    <div class="mb-3">
+                    <div class="mb-5">
                         <label class="form-label">How are you feeling?</label>
+                            <input type="text" id="mood" name="mood" placeholder="e.g., Happy, Sad, Excited">
+                            <textarea id="notes" name="notes" rows="4" placeholder="Add any additional details..."></textarea>
+                          </form>
                         {{ form.mood }}
                     </div>
                     <div class="mb-3">
