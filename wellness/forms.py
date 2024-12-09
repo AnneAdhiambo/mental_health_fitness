@@ -1,5 +1,5 @@
 from django import forms
-from .models import Mood,JournalEntry
+from .models import Mood, JournalEntry, Activity
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
@@ -9,6 +9,21 @@ class MoodForm(forms.ModelForm):
         model = Mood
         fields = ['mood_type', 'description']
 
+
+class ActivityForm(forms.ModelForm):
+    class Meta:
+        model = Activity  # Ensure you have the correct model imported
+        fields = ['activity', 'duration']
+        widgets = {
+            'activity': forms.TextInput(attrs={
+                'placeholder': 'Enter activity',
+                'class': 'form-control'
+            }),
+            'duration': forms.NumberInput(attrs={
+                'placeholder': 'Enter duration in minutes',
+                'class': 'form-control'
+            }),
+        }
 
 class JournalEntryForm(forms.ModelForm):
     class Meta:
