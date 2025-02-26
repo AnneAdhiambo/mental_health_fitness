@@ -1,9 +1,9 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'journal',
+        'NAME': 'mhf',
         'USER': 'Anney',
-        'PASSWORD': '',
+        'PASSWORD': 'anney1234567',
         'HOST': 'localhost',  # Or your MySQL server address
         'PORT': '3306',
         'OPTIONS': {
