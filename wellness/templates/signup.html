@@ -1,121 +1,377 @@
 {% extends 'base.html' %}
-
 {% block title %}Sign up{% endblock %}
-
 {% block content %}
 <style>
-/* Container */
-.signup-container {
-    width: 100%;
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #ffffff;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-    font-family: Arial, sans-serif;
-}
+    /* Global Signup Page Styles */
+    .signup-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 100px);
+        padding: 20px;
+        background-color: #f4f4f4;
+        font-family: 'Arial', sans-serif;
+    }
 
-/* Title */
-.signup-title {
-    margin-bottom: 20px;
-    font-size: 24px;
-    font-weight: bold;
-    text-align: center;
-    color: #333;
-}
+    .signup-content {
+        display: flex;
+        width: 100%;
+        max-width: 1400px;
+        background-color: white;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border-radius: 20px;
+        overflow: hidden;
+    }
 
-/* Form Group */
-.form-group {
-    margin-bottom: 15px;
-}
+    /* Animation Section Styles */
+    .signup-animation {
+        flex: 1.5;
+        background: linear-gradient(135deg, #e6f3e6 0%, #b2ebf2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: #666;
-}
+    .mental-health-illustration {
+        width: 100%;
+        max-width: 700px;
+        position: relative;
+        height: 500px;
+    }
 
-.form-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
+    .motivational-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        max-width: 80%;
+        padding: 20px;
+        background-color: rgba(76, 175, 80, 0.7);
+        border-radius: 15px;
+        z-index: 10;
+    }
 
-.form-group input:focus {
-    border-color: #4caf50;
-    outline: none;
-    box-shadow: 0px 0px 5px rgba(76, 175, 80, 0.5);
-}
+    /* Form Section Styles */
+    .signup-form-container {
+        flex: 1;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(to bottom right, #f9f9f9, #f0f0f0);
+    }
 
-/* Error Messages */
-.error-messages {
-    padding: 10px;
-    background-color: #fdecea;
-    color: #e74c3c;
-    border: 1px solid #e74c3c;
-    border-radius: 5px;
-    margin-bottom: 15px;
-}
+    .signup-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+    }
 
-/* Submit Button */
-.submit-button {
-    width: 100%;
-    padding: 10px 15px;
-    background-color: #4caf50;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+    .signup-title {
+        color: #2c3e50;
+        font-size: 28px;
+        margin-bottom: 30px;
+        text-align: center;
+        position: relative;
+    }
 
-.submit-button:hover {
-    background-color: #45a049;
-}
+    .signup-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background-color: #4caf50;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background-color: #ffffff;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .form-group input:focus {
+        border-color: #4caf50;
+        outline: none;
+        box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
+    }
+
+    .form-group label {
+        position: absolute;
+        top: -25px;
+        left: 10px;
+        background-color: white;
+        padding: 0 5px;
+        font-size: 14px;
+        color: #666;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .form-group input:focus + label,
+    .form-group input:not(:placeholder-shown) + label {
+        top: -25px;
+        color: #4caf50;
+        font-weight: 600;
+    }
+
+    .form-group input::placeholder {
+        color: #aaa;
+        transition: color 0.3s ease;
+    }
+
+    .form-group input:focus::placeholder {
+        color: #4caf50;
+    }
+
+    .submit-button {
+        width: 100%;
+        padding: 15px;
+        background-color: #4caf50;
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .submit-button:hover {
+        background-color: #45a049;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(76, 175, 80, 0.4);
+    }
+
+    .submit-button:active {
+        transform: translateY(1px);
+        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+    }
+
+    .error-messages {
+        background-color: #ffebee;
+        color: #d32f2f;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 1200px) {
+        .signup-content {
+            flex-direction: column;
+        }
+        .signup-animation, .signup-form-container {
+            flex: 1;
+        }
+    }
 </style>
 
-<div class="signup-container">
-  <h1 class="signup-title">Sign up</h1>
-  <form method="POST" action=".">
-      {% csrf_token %}
-      <!-- Username Field -->
-      <div class="form-group">
-          <label for="username">Username</label>
-          {{ form.username }}
-      </div>
+<div class="signup-wrapper">
+    <div class="signup-content">
+        <!-- Animation Section -->
+        <div class="signup-animation">
+            <div class="mental-health-illustration">
+                <div id="motivational-text" class="motivational-text">
+                    Your journey begins here
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 500">
+                    <!-- Background Gradient -->
+                    <defs>
+                        <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:0.5"/>
+                            <stop offset="100%" style="stop-color:#E0F8FF;stop-opacity:0.2"/>
+                        </linearGradient>
+                        <linearGradient id="grassGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#4CAF50;stop-opacity:0.7"/>
+                            <stop offset="100%" style="stop-color:#2E7D32;stop-opacity:0.9"/>
+                        </linearGradient>
+                    </defs>
 
-      <!-- Password Field -->
-      <div class="form-group">
-          <label for="password1">Password</label>
-          {{ form.password1 }}
-      </div>
+                    <!-- Sky Background -->
+                    <rect width="700" height="500" fill="url(#skyGradient)"/>
 
-      <!-- Repeat Password Field -->
-      <div class="form-group">
-          <label for="password2">Repeat Password</label>
-          {{ form.password2 }}
-      </div>
+                    <!-- Ground -->
+                    <rect y="400" width="700" height="100" fill="url(#grassGradient)"/>
 
-      <!-- Error Messages -->
-      {% if form.errors or form.non_field_errors %}
-      <div class="error-messages">
-          {% for field in form %}
-          {{ field.errors }}
-          {% endfor %}
-          {{ form.non_field_errors }}
-      </div>
-      {% endif %}
+                    <!-- Trees with More Dynamic Animation -->
+                    <g class="trees">
+                        <!-- Left Tree with Subtle Sway -->
+                        <path id="leftTree" d="M50 350 Q20 250, 50 200 Q80 150, 50 100 Q20 50, 50 20" 
+                              fill="#2E7D32" opacity="0.7"/>
+                        
+                        <!-- Right Tree with Subtle Sway -->
+                        <path id="rightTree" d="M650 350 Q680 250, 650 200 Q620 150, 650 100 Q680 50, 650 20" 
+                              fill="#2E7D32" opacity="0.7"/>
+                    </g>
 
-      <!-- Submit Button -->
-      <button class="submit-button" type="submit">Submit</button>
-  </form>
+                    <!-- More Realistic People Group with Emotion -->
+                    <g class="people" transform="translate(250, 320) scale(1.2)">
+                        <!-- Person 1: Hopeful Pose -->
+                        <g transform="translate(0, -50)" id="person1">
+                            <!-- Head with More Expressive Face -->
+                            <ellipse cx="0" cy="-30" rx="25" ry="30" fill="#F5DEB3"/>
+                            <circle cx="-10" cy="-35" r="3" fill="black"/> <!-- Left Eye -->
+                            <circle cx="10" cy="-35" r="3" fill="black"/> <!-- Right Eye -->
+                            <path d="M-8 -25 Q0 -20, 8 -25" stroke="black" fill="none"/> <!-- Smile -->
+                            
+                            <!-- Body with Uplifted Posture -->
+                            <path d="M0 0 L-20 50 L20 50 Z" fill="#1E90FF"/>
+                            
+                            <!-- Arms in Confident Pose -->
+                            <path d="M-20 10 L-40 10 M20 10 L40 10" 
+                                  stroke="#F5DEB3" stroke-width="8" fill="none"/>
+                            
+                            <!-- Legs -->
+                            <path d="M-20 50 L-30 100 M20 50 L30 100" 
+                                  stroke="#1E90FF" stroke-width="10" fill="none"/>
+                        </g>
+                        
+                        <!-- Person 2: Supportive Pose -->
+                        <g transform="translate(100, -30)">
+                            <!-- Head -->
+                            <ellipse cx="0" cy="-25" rx="20" ry="25" fill="#DEB887"/>
+                            
+                            <!-- Body -->
+                            <path d="M0 0 L-15 40 L15 40 Z" fill="#FF6347"/>
+                            
+                            <!-- Arms (in a supportive pose) -->
+                            <path d="M-15 10 L-35 -10 M15 10 L35 -10" 
+                                  stroke="#DEB887" stroke-width="6" fill="none"/>
+                            
+                            <!-- Legs -->
+                            <path d="M-15 40 L-25 90 M15 40 L25 90" 
+                                  stroke="#FF6347" stroke-width="8" fill="none"/>
+                        </g>
+                    </g>
+
+                    <!-- Supportive Hands Overlay -->
+                    <g class="support-hands" transform="translate(200, 200)">
+                        <path d="M0 50 Q100 0, 200 50 
+                                 C250 100, 300 50, 300 0 
+                                 Q300 -50, 250 -50 
+                                 Q200 -50, 150 0 
+                                 Q100 -50, 50 -50 
+                                 Q0 -50, 0 0 
+                                 Q0 50, 50 50" 
+                              fill="rgba(76, 175, 80, 0.3)" 
+                              stroke="#4caf50" 
+                              stroke-width="3"/>
+                    </g>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Signup Form Section -->
+        <div class="signup-form-container">
+            <div class="signup-container">
+                <h1 class="signup-title">Create Your Account</h1>
+                <form method="POST" action=".">
+                    {% csrf_token %}
+                    <!-- Username Field -->
+                    <div class="form-group">
+                        <input type="text" id="username" name="username" 
+                               placeholder="Choose a username" required>
+                        <label for="username">Username</label>
+                    </div>
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <input type="password" id="password1" name="password1" 
+                               placeholder="Create a strong password" required>
+                        <label for="password1">Password</label>
+                    </div>
+                    <!-- Repeat Password Field -->
+                    <div class="form-group">
+                        <input type="password" id="password2" name="password2" 
+                               placeholder="Confirm your password" required>
+                        <label for="password2">Repeat Password</label>
+                    </div>
+                    <!-- Error Messages -->
+                    {% if form.errors or form.non_field_errors %}
+                    <div class="error-messages">
+                        {% for field in form %}
+                        {{ field.errors }}
+                        {% endfor %}
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+                    <!-- Submit Button -->
+                    <button class="submit-button" type="submit">Begin Your Journey</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script>
+    const motivationalTexts = [
+        "Your journey begins here",
+        "Embrace your potential",
+        "Every step counts",
+        "You are stronger than you know",
+        "Believe in yourself"
+    ];
+
+    function animateElements() {
+        const people = document.querySelector('.people');
+        const trees = document.querySelector('.trees');
+        const supportHands = document.querySelector('.support-hands');
+        const motivationalText = document.getElementById('motivational-text');
+
+        let textIndex = 0;
+        setInterval(() => {
+            motivationalText.style.opacity = 0;
+            setTimeout(() => {
+                motivationalText.textContent = motivationalTexts[textIndex];
+                motivationalText.style.opacity = 1;
+                textIndex = (textIndex + 1) % motivationalTexts.length;
+            }, 500);
+        }, 3000);
+
+        function breathingAnimation() {
+            const time = Date.now();
+            
+            // People and trees subtle animation
+            people.style.transform = `translate(250px, 320px) scale(1.2) translateY(${Math.sin(time * 0.002) * 10}px)`;
+            
+            // Animate trees with a slight sway
+            const leftTree = document.getElementById('leftTree');
+            const rightTree = document.getElementById('rightTree');
+            leftTree.setAttribute('d', `M50 350 Q${20 + Math.sin(time * 0.001) * 5} 250, 50 200 Q${80 + Math.cos(time * 0.001) * 5} 150, 50 100 Q20 50, 50 20`);
+            rightTree.setAttribute('d', `M650 350 Q${680 - Math.sin(time * 0.001) * 5} 250, 650 200 Q${620 - Math.cos(time * 0.001) * 5} 150, 650 100 Q680 50, 650 20`);
+            
+            // Subtle hands rotation
+            supportHands.style.transform = `translate(200px, 200px) rotate(${Math.sin(time * 0.001) * 2}deg)`;
+        }
+
+        setInterval(breathingAnimation, 50);
+    }
+
+    window.addEventListener('load', animateElements);
+</script>
 {% endblock %}
