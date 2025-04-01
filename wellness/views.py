@@ -5,7 +5,9 @@ from .forms import MoodForm, JournalEntryForm, LoginForm, SignupForm, Activity, 
 from .models import Mood, JournalEntry, MoodEntry, Activity
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-
+from django.http import JsonResponse
+from .models import Conversation, Message
+from .gemini_client import GeminiClient
 
 
 def home(request):
@@ -179,10 +181,6 @@ def activity_list(request):
     activities = Activity.objects.all()
     return render(request, 'activity_tracker.html', {'activities': activities})
 
-
-
-
-
 def activities_view(request):
     if request.method == 'POST':
         form = ActivityForm(request.POST)
@@ -195,3 +193,54 @@ def activities_view(request):
     activities = Activity.objects.all()
     form = ActivityForm()
     return render(request, 'activities.html', {'form': form, 'activities': activities})
+
+def chat_view(request):
+ 
+    if 'conversation_id' not in request.session:
+        conversation = Conversation.objects.create()
+        request.session['conversation_id'] = conversation.id
+    else:
+        conversation = Conversation.objects.get(id=request.session['conversation_id'])
+    messages = conversation.messages.all()
+    
+    return render(request, 'chat_view.html', {'messages': messages})
+
+def send_message(request):
+    if request.method == 'POST':
+        user_message = request.POST.get('message', '')
+        conversation_id = request.session.get('conversation_id')
+        
+        if not conversation_id:
+            conversation = Conversation.objects.create()
+            request.session['conversation_id'] = conversation.id
+        else:
+            conversation = Conversation.objects.get(id=conversation_id)
+        
+        Message.objects.create(
+            conversation=conversation,
+            content=user_message,
+            is_user=True
+        )
+
+        messages = conversation.messages.all()
+        client = GeminiClient()
+        bot_response = client.get_chat_response(messages)
+        
+
+        bot_message = Message.objects.create(
+            conversation=conversation,
+            content=bot_response,
+            is_user=False
+        )
+        
+        return JsonResponse({
+            'message': bot_response,
+            'timestamp': bot_message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+def new_conversation(request):
+    conversation = Conversation.objects.create()
+    request.session['conversation_id'] = conversation.id
+    return redirect('chat')

@@ -23,6 +23,9 @@ urlpatterns = [
     path('add-activity/', views.add_activity, name='add_activity'),
     path('activities/', views.activity_list, name='activity_list'),
     path('activities/toggle-completed/<int:activity_id>/', toggle_completed, name='toggle_completed'),
+    path('chat_view/', views.chat_view, name='chat_view'),
+    path('send/', views.send_message, name='send_message'),
+    path('new/', views.new_conversation, name='new_conversation'),
 
 
 
