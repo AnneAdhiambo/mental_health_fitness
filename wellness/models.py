@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import date
+from django.utils.timezone import now
 
 
 class Mood(models.Model):
@@ -28,12 +30,15 @@ class MoodEntry(models.Model):
 
     def __str__(self):
         return self.mood
-    
+   
+
 class Activity(models.Model):
-    activity = models.CharField(max_length=255)
-    duration = models.IntegerField()
+    name = models.CharField(max_length=255, default="Unnamed Activity")  
+    duration = models.IntegerField()  # duration in minutes
+    date = models.DateField(default=now)  # Set a default value
     completed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Allow NULL
 
     def __str__(self):
-        return self.activity
+        return f"{self.name} ({self.duration} min) on {self.date}"

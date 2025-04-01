@@ -101,7 +101,7 @@
 <div class="container mt-5">
     <div class="greeting mb-4">
         <h2>Hey {{ request.user.first_name|default:request.user.username }}! 😊</h2>
-        <p>Nothing is impossible. Keep smiling!</p>
+        <p id="daily-quote" style="text-align: center; color: green; font-style: italic;"></p>
     </div>
     <h3 class="mb-4">My Week Journal</h3>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 journal-container">
@@ -147,48 +147,106 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveJournalBtn">Save</button>
-            </div>
+                <button id="saveJournalBtn" class="btn btn-primary">Save</button>
+                </div>
         </div>
     </div>
 </div>
-
 <script>
     document.getElementById('saveJournalBtn').addEventListener('click', function() {
-        const date = document.getElementById('journal-date').value;
-        const content = document.getElementById('journal-content').value;
+    const date = document.getElementById('journal-date').value;
+    const content = document.getElementById('journal-content').value;
 
-        if (!date || !content) {
-            alert("Please fill in both the date and content!");
-            return;
+    if (!date || !content) {
+        alert("Please fill in both the date and content!");
+        return;
+    }
+
+    const journalData = {
+        date: date,
+        content: content
+    };
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch('/journal/add/', {  // Ensure this matches the Django URL
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(journalData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Journal saved successfully!");
+            location.reload();  // Refresh to show new entry
+        } else {
+            alert('Error: ' + data.error);
         }
-
-        const journalData = {
-            date: date,
-            content: content
-        };
-
-        fetch('/save_journal/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-            },
-            body: JSON.stringify(journalData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
-                return;
-            }
-            alert('Journal saved successfully!');
-            location.reload(); // Reload the page to show the new entry
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while saving the journal.');
-        });
+    })
+    .catch(error => {
+        console.error("Error saving journal:", error);
+        alert("A network error occurred. Please try again.");
     });
+});
+// Quote fetching function with better error handling
+function fetchQuote() {
+    console.log("Fetching new quote...");
+    
+    const apiUrl = 'https://zenquotes.io/api/random';
+
+    // Use a timeout to prevent hanging requests
+    const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timed out')), 5000);
+    });
+
+    Promise.race([
+        fetch(apiUrl),
+        timeoutPromise
+    ])
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Quote API HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Quote data received:", data);
+
+        // Ensure data is valid
+        if (Array.isArray(data) && data.length > 0 && data[0].q) {
+            document.getElementById('daily-quote').textContent = `${data[0].q} - ${data[0].a}`;
+        } else {
+            throw new Error("Invalid quote data received");
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching quote:", error);
+
+        // Use fallback quotes when API fails
+        const fallbackQuotes = [
+            "You are enough. Keep going! 💙",
+            "The best way to predict the future is to create it. - Abraham Lincoln",
+            "Believe you can and you're halfway there. - Theodore Roosevelt",
+            "Everything you can imagine is real. - Pablo Picasso",
+            "Turn your wounds into wisdom. - Oprah Winfrey"
+        ];
+
+        // Select a random fallback quote
+        const randomQuote = fallbackQuotes[Math.floor(Math.random() * fallbackQuotes.length)];
+        document.getElementById('daily-quote').textContent = randomQuote;
+    });
+}
+
+// Auto-refresh quote every 10 seconds
+document.addEventListener('DOMContentLoaded', function () {
+    fetchQuote();  // Fetch the first quote on page load
+    setInterval(fetchQuote, 10000);  // Fetch new quote every 10 seconds
+});
+
 </script>
+
 {% endblock %}
+    

@@ -1,111 +1,283 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Activities{% endblock %}
+{% block title %}Activity List{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h4>Plan Your Day</h4>
-            </div>
-            <div class="card-body">
-                <form method="post" action="{% url 'activities' %}">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label class="form-label">Activity</label>
-                        {{ form.activity }}
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Duration (minutes)</label>
-                        {{ form.duration }}
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add Activity</button>
-                </form>
-            </div>
+<div class="container">
+    <h2>Activity Tracker</h2>
+    <ul id="activity-list">
+        <li>Activity</li>
+    </ul>
+    
+    <!-- Activity Addition Form -->
+    <form id="activityForm" method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" 
+                   name="activity_name" 
+                   class="form-control" 
+                   placeholder="Activity Name" 
+                   required>
         </div>
-    </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h4>Today's Activities</h4>
-            </div>
-            <div class="card-body">
-                {% if activities %}
-                    <ul class="list-group">
-                    {% for activity in activities %}
-                        <li class="list-group-item">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input toggle-completed" 
-                                       data-id="{{ activity.id }}"
-                                       {% if activity.completed %}checked{% endif %}>
-                                <label class="form-check-label">
-                                    {{ activity.activity }} ({{ activity.duration }} min)
-                                </label>
-                            </div>
-                        </li>
-                    {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No activities planned for today.</p>
-                {% endif %}
-                
-            </div>
+        <div class="mb-3">
+            <input type="number" 
+                   name="activity_duration" 
+                   class="form-control" 
+                   placeholder="Duration (minutes)" 
+                   required>
         </div>
-    </div>
-</div>
+        <div class="mb-3">
+            <input type="date" 
+                   name="activity_date" 
+                   class="form-control" 
+                   required>
+        </div>
+        
+        <!-- Error Message Container -->
+        <div id="form-error-container" class="mb-3"></div>
+        
+        <button type="submit" class="btn btn-primary">Add Activity</button>
+    </form>
 
+    <!-- Activity List -->
+    <table class="table mt-4">
+        <thead>
+            <tr>
+                <th>Activity</th>
+                <th>Duration</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="activity-list">
+            {% for activity in activities %}
+            <tr data-id="{{ activity.id }}">
+                <td>{{ activity.name }}</td>
+                <td>{{ activity.duration }} min</td>
+                <td>{{ activity.date }}</td>
+                <td>{{ activity.completed|yesno:"Completed,Pending" }}</td>
+                <td>
+                    {% if not activity.completed %}
+                        <button class="btn btn-sm btn-primary mark-complete">Mark Complete</button>
+                    {% else %}
+                        <button class="btn btn-sm btn-success" disabled>Completed</button>
+                    {% endif %}
+                    <button class="btn btn-sm btn-danger delete-activity">Delete</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        
+    </table>
+</div>
 <script>
-    // JavaScript to handle activity completion
-    document.addEventListener('DOMContentLoaded', function () {
-        const csrftoken = getCookie('csrftoken'); // Retrieve CSRF token from cookies
+    let activityList; // Declare once at the top level
+//     document.body.addEventListener("click", function (e) {
+//     if (e.target.classList.contains("mark-complete")) {
+//         const row = e.target.closest("tr");
+//         const activityId = row.dataset.id;
 
-        const checkboxes = document.querySelectorAll('.toggle-completed');
+//         fetch(`/activities/mark-complete/${activityId}/`, {
+//             method: "POST",
+//             headers: {
+//                 "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+//             }
+//         })
+//         .then(response => response.json())
+//         .then(data => {
+//             if (data.success) {
+//                 console.log(`Activity ${activityId} marked as complete`);
+//                 fetchActivities(); // Refresh the list
+//             } else {
+//                 console.error("Failed to mark activity as complete:", data.error);
+//             }
+//         })
+//         .catch(error => console.error("Error in fetch:", error));
+//     }
+// });
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const activityId = this.dataset.id;
-                const completed = this.checked;
+// mark complete button
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector("#activity-list").addEventListener("click", function (e) {
+        if (e.target.classList.contains("mark-complete")) {
+            const row = e.target.closest("tr");
+            const activityId = row.dataset.id;
 
-                // Send the data to the server
-                fetch(`/activities/toggle-completed/${activityId}/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken // Include CSRF token
-                    },
-                    body: JSON.stringify({ completed: completed })
-                }).then(response => {
-                    if (!response.ok) {
-                        alert('Failed to update activity. Please try again.');
-                        this.checked = !completed; // Revert the checkbox if there’s an error
-                    }
-                }).catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
-                });
-            });
-        });
+            fetch(`/activities/mark-complete/${activityId}/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify({ completed: true })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Response from server:", data); // Debugging
 
-        // Function to get CSRF token from cookies
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+                if (data.success) {
+                    // ✅ Update status text
+                    row.querySelector("td:nth-child(4)").textContent = "Completed";
+                    
+                    // ✅ Disable the button
+                    e.target.classList.remove("btn-primary");
+                    e.target.classList.add("btn-success");
+                    e.target.textContent = "Completed";
+                    e.target.disabled = true;
+                } else {
+                    console.error("Error:", data.message);
                 }
-            }
-            return cookieValue;
+            })
+            .catch(error => console.error("Fetch error:", error));
         }
     });
+});
+   
+    // Event delegation for Delete button
+    document.body.addEventListener("click", function (e) {
+    if (e.target.classList.contains("delete-activity")) {
+        const row = e.target.closest("tr");
+        const activityId = row.dataset.id;
+
+        fetch(`/activities/delete/${activityId}/`, {
+            method: "DELETE",
+            headers: {
+                "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`Activity ${activityId} deleted`);
+                row.remove(); // Remove the row from UI
+            } else {
+                console.error("Failed to delete activity:", data.error);
+            }
+        })
+        .catch(error => console.error("Error in fetch:", error));
+    }
+});
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("#add-activity-form");
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent form from redirecting
+            e.preventDefault(); // Prevent default form submission
+            
+            // Disable the submit button to prevent multiple clicks
+            submitButton.disabled = true;
+
+            const name = document.querySelector("#activity-name").value.trim();
+            const duration = document.querySelector("#activity-duration").value.trim();
+            const date = document.querySelector("#activity-date").value.trim();
+
+            if (!name || !duration || !date) {
+                console.error("All fields are required.");
+                return;
+            }
+
+            fetch("/activities/add/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify({
+                    activity_name: name,
+                    activity_duration: duration,
+                    activity_date: date
+                })
+            })
+            .then(response => response.json()) // Parse JSON response
+            .then(data => {
+                if (data.success) {
+                    console.log("Activity added:", data.activity);
+
+                    // ✅ Update the activity list dynamically
+                    document.querySelector("#activity-list").innerHTML += `
+                        <tr>
+                            <td>${data.activity.name}</td>
+                            <td>${data.activity.duration} min</td>
+                            <td>${new Date(data.activity.date).toLocaleDateString()}</td>
+                            <td class="status">${data.activity.completed ? "Completed" : "Pending"}</td>
+                            <td>
+                                <button class="mark-complete">✅ Complete</button>
+                                <button class="delete-activity">🗑️ Delete</button>
+                            </td>
+                        </tr>
+                    `;
+
+                    // ✅ Clear the form fields
+                    form.reset();
+                } else {
+                    console.error("Failed to add activity:", data.error);
+                }
+            })
+            .catch(error => console.error("Error in fetch:", error));
+        });
+    }
+});
+function renderActivity(activity) {
+    return `
+        <tr data-id="${activity.id}">
+            <td>${activity.name}</td>
+            <td>${activity.duration} min</td>
+            <td>${new Date(activity.date).toLocaleDateString()}</td>
+            <td>${activity.completed ? "Completed" : "Pending"}</td>
+            <td>
+                <button class="mark-complete">✅ Complete</button>
+                <button class="delete-activity">🗑️ Delete</button>
+            </td>
+        </tr>
+    `;
+}
+
+
+
+    
+// function fetchActivities() {
+//     fetch('/activities/')
+//         .then(response => {
+//             if (!response.ok) {
+//                 throw new Error(`HTTP error! status: ${response.status}`);
+//             }
+//             return response.text();
+//         })
+//         .then(text => {
+//             console.log("Raw Response:", text);
+//             try {
+//                 return JSON.parse(text);
+//             } catch (e) {
+//                 throw new Error("Invalid JSON response: " + text);
+//             }
+//         })
+//         .then(data => {
+//             console.log("Parsed JSON:", data);
+//             if (!activityList) {
+//                 console.error("activityList element not found when trying to populate");
+//                 return;
+//             }
+            
+//             activityList.innerHTML = ''; // Clear the list before adding new ones
+//             data.activities.forEach(activity => {
+//                 const newRow = document.createElement('tr');
+//                 newRow.setAttribute("data-id", activity.id);
+//                 newRow.innerHTML = `
+//                     <td>${activity.name}</td>
+//                     <td>${activity.duration} min</td>
+//                     <td>${activity.date}</td>
+//                     <td><span class="badge bg-${activity.completed ? "success" : "warning"} status-badge">${activity.completed ? "Completed" : "Pending"}</span></td>
+//                     <td>
+//                         <button class="btn btn-sm ${activity.completed ? "btn-success disabled" : "btn-primary"} mark-complete" ${activity.completed ? "disabled" : ""}>${activity.completed ? "Completed" : "Mark Complete"}</button>
+//                         <button class="btn btn-sm btn-danger delete-activity">Delete</button>
+//                     </td>
+//                 `;
+//                 activityList.appendChild(newRow);
+//             });
+//         })
+//         .catch(error => console.error('Error fetching activities:', error));
+// }
 </script>
 {% endblock %}

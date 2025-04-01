@@ -12,17 +12,12 @@ class MoodForm(forms.ModelForm):
 
 class ActivityForm(forms.ModelForm):
     class Meta:
-        model = Activity  # Ensure you have the correct model imported
-        fields = ['activity', 'duration']
+        model = Activity
+        fields = ['name', 'duration', 'date']
         widgets = {
-            'activity': forms.TextInput(attrs={
-                'placeholder': 'Enter activity',
-                'class': 'form-control'
-            }),
-            'duration': forms.NumberInput(attrs={
-                'placeholder': 'Enter duration in minutes',
-                'class': 'form-control'
-            }),
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Activity Name'}),
+            'duration': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duration (minutes)'}),
+            'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'})
         }
 
 class JournalEntryForm(forms.ModelForm):
