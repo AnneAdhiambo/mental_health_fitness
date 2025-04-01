@@ -41,4 +41,25 @@ class Activity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Allow NULL
 
     def __str__(self):
-        return f"{self.name} ({self.duration} min) on {self.date}"
+        return self.activity
+    
+
+class Conversation(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Conversation {self.id} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
+
+class Message(models.Model):
+    conversation = models.ForeignKey(Conversation, related_name='messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    is_user = models.BooleanField(default=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        sender = "User" if self.is_user else "Bot"
+        return f"{sender}: {self.content[:50]}..."
+    
+    class Meta:
+        ordering = ['timestamp']

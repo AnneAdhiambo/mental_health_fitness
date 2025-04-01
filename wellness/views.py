@@ -10,6 +10,8 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods  
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_POST
+from .models import Conversation, Message
+from .gemini_client import GeminiClient
 
 
 
@@ -404,15 +406,66 @@ def mark_activity_complete(request, activity_id):
 
     return JsonResponse({"success": False, "error": "Invalid request method"}, status=405)
 
+def activities_view(request):
+    if request.method == 'POST':
+        form = ActivityForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors}, status=400)
 
+    activities = Activity.objects.all()
+    form = ActivityForm()
+    return render(request, 'activities.html', {'form': form, 'activities': activities})
 
+def chat_view(request):
+ 
+    if 'conversation_id' not in request.session:
+        conversation = Conversation.objects.create()
+        request.session['conversation_id'] = conversation.id
+    else:
+        conversation = Conversation.objects.get(id=request.session['conversation_id'])
+    messages = conversation.messages.all()
+    
+    return render(request, 'chat_view.html', {'messages': messages})
 
-def delete_activity(request, activity_id):
-    if request.method == "DELETE":
-        activity = get_object_or_404(Activity, id=activity_id)
-        activity.delete()
-        return JsonResponse({"success": True})
-    return JsonResponse({"error": "Invalid request"}, status=400)
+def send_message(request):
+    if request.method == 'POST':
+        user_message = request.POST.get('message', '')
+        conversation_id = request.session.get('conversation_id')
+        
+        if not conversation_id:
+            conversation = Conversation.objects.create()
+            request.session['conversation_id'] = conversation.id
+        else:
+            conversation = Conversation.objects.get(id=conversation_id)
+        
+        Message.objects.create(
+            conversation=conversation,
+            content=user_message,
+            is_user=True
+        )
 
+        messages = conversation.messages.all()
+        client = GeminiClient()
+        bot_response = client.get_chat_response(messages)
+        
 
+        bot_message = Message.objects.create(
+            conversation=conversation,
+            content=bot_response,
+            is_user=False
+        )
+        
+        return JsonResponse({
+            'message': bot_response,
+            'timestamp': bot_message.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        })
+    
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
+def new_conversation(request):
+    conversation = Conversation.objects.create()
+    request.session['conversation_id'] = conversation.id
+    return redirect('chat')

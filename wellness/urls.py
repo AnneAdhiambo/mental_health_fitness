@@ -49,6 +49,10 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
 
 
+    path('chat_view/', views.chat_view, name='chat_view'),
+    path('send/', views.send_message, name='send_message'),
+    path('new/', views.new_conversation, name='new_conversation')
+
 
     # path('chat/', views.chat, name='chat'),  # Creating a new chat
     # path("chatbot/", views.chatbot, name="chatbot"),  # View chatbot UI
