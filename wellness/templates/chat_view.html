@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #chat-container {
+            height: 70vh;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 70%;
+        }
+        .user-message {
+            background-color: #e6f7ff;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #f0f0f0;
+            margin-right: auto;
+        }
+        #message-form {
+            display: flex;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #new-chat-btn {
+            margin-bottom: 15px;
+            background-color: #2196F3;
+        }
+        #new-chat-btn:hover {
+            background-color: #0b7dda;
+        }
+        .timestamp {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gemini Chatbot</h1>
+    
+    <a href="{% url 'new_conversation' %}"><button id="new-chat-btn">New Conversation</button></a>
+    
+    <div id="chat-container">
+        {% for message in messages %}
+            <div class="message {% if message.is_user %}user-message{% else %}bot-message{% endif %}">
+                {{ message.content }}
+                <div class="timestamp">{{ message.timestamp|date:"Y-m-d H:i:s" }}</div>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <form id="message-form">
+        {% csrf_token %}
+        <input type="text" id="user-input" placeholder="Type your message..." required>
+        <button type="submit">Send</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatContainer = document.getElementById('chat-container');
+            const messageForm = document.getElementById('message-form');
+            const userInput = document.getElementById('user-input');
+            
+            // Scroll to bottom of chat
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            messageForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const message = userInput.value.trim();
+                if (!message) return;
+                                // Add user message to chat
+                                const userMessageDiv = document.createElement('div');
+                userMessageDiv.className = 'message user-message';
+                userMessageDiv.textContent = message;
+                
+                const timestampDiv = document.createElement('div');
+                timestampDiv.className = 'timestamp';
+                const now = new Date();
+                timestampDiv.textContent = now.toISOString().replace('T', ' ').substring(0, 19);
+                userMessageDiv.appendChild(timestampDiv);
+                
+                chatContainer.appendChild(userMessageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Clear input
+                userInput.value = '';
+                
+                // Send message to server
+                const formData = new FormData();
+                formData.append('message', message);
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+                
+                fetch('{% url "send_message" %}', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Add bot message to chat
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.className = 'message bot-message';
+                    botMessageDiv.textContent = data.message;
+                    
+                    const timestampDiv = document.createElement('div');
+                    timestampDiv.className = 'timestamp';
+                    timestampDiv.textContent = data.timestamp;
+                    botMessageDiv.appendChild(timestampDiv);
+                    
+                    chatContainer.appendChild(botMessageDiv);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
